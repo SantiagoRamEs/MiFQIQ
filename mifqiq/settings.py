@@ -114,7 +114,7 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"prompt": "select_account"},
+        "AUTH_PARAMS": {},
     }
 }
 
