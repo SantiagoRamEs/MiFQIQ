@@ -36,12 +36,16 @@
             </form>
             {% else %}
             <h2>Iniciar sesión</h2>
+            {% if google_login_enabled %}
             <a class="link-login" href="{% provider_login_url 'google' %}">
                 <div class="google-btn">
                     <img class="img-google" src="{% static 'img/icono_google.png' %}">
                     <p class="text-login">Iniciar sesión con Google</p>
                 </div>
             </a>
+            {% else %}
+            <p class="nota">El inicio de sesión con Google no está configurado en este entorno.</p>
+            {% endif %}
             <p class="nota">Recuerda que solo puedes inciar sesión con tu correo institucional (ejemplo:
                 user@unmsm.edu.pe)
             </p>

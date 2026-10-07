@@ -8,6 +8,7 @@ from django.db.models import Avg, Count
 from .forms import ProfessorSuggestionForm
 from django.core.mail import send_mail
 from django.conf import settings
+from allauth.socialaccount.models import SocialApp
 
 User = get_user_model()
 
@@ -78,7 +79,13 @@ def view_professors(request):
     })
 
 def login_view(request):
-    return render(request, 'login.html')
+    google_login_enabled = SocialApp.objects.filter(
+        provider='google',
+        sites__id=settings.SITE_ID,
+    ).exists()
+    return render(request, 'login.html', {
+        'google_login_enabled': google_login_enabled,
+    })
 
 def form_valid(self, form):
     form.instance.user = self.request.user
@@ -307,5 +314,4 @@ class DatosPrivadosView(APIView):
             "mensaje": f"Hola {request.user.username}, acceso concedido.",
             "data": "Información sensible de la facultad"
         })
-
 

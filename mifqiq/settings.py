@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from decouple import config
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
@@ -14,10 +15,9 @@ SECRET_KEY = config('MY_SECRET_KEY')
 DEBUG = os.getenv("MY_DEBUG", "False") == "True"
 
 
-if DEBUG:
-    ALLOWED_HOSTS = ['mifqiq-production.up.railway.app']
-else:
-    ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+if not DEBUG:
+    ALLOWED_HOSTS.append('mifqiq-production.up.railway.app')
 
 #SECURITY (HTTPS / COOKIES / HSTS)
 if DEBUG:
@@ -173,24 +173,16 @@ WSGI_APPLICATION = 'mifqiq.wsgi.application'
 
 # DATABASE
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "NAME": os.getenv("DB_NAME", "postgres"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT", "6543"),
-        "CONN_MAX_AGE": 0,
-    }
-}
-
-if DEBUG and not os.getenv("DB_HOST"):
+if DEBUG:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
+    }
+else:
+    DATABASES = {
+        "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
     }
 
 
