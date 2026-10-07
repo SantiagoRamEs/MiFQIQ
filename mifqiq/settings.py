@@ -15,7 +15,7 @@ SECRET_KEY = config('MY_SECRET_KEY')
 DEBUG = os.getenv("MY_DEBUG") == "True"
 
 
-ALLOWED_HOSTS = ['mifqiq-production.up.railway.app']
+ALLOWED_HOSTS = ["localhost","mifqiq-production.up.railway.app"]
 
 #SECURITY (HTTPS / COOKIES / HSTS)
 if DEBUG:
@@ -213,6 +213,8 @@ MEDIA_URL = '/media/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # backend dinámico (clave)
 if DEBUG:

@@ -5,3 +5,4 @@ db.sqlite3
 .gitignore
 logs
 MiFQIQ.env
+staticfiles
