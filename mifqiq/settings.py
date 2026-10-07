@@ -7,24 +7,19 @@ from pathlib import Path
 from decouple import config
 from dotenv import load_dotenv
 
-# BASE
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-
-# CORE
 
 SECRET_KEY = config('MY_SECRET_KEY')
 DEBUG = os.getenv("MY_DEBUG", "False") == "True"
 
-# HOSTS
 
 if DEBUG:
     ALLOWED_HOSTS = ['mifqiq-production.up.railway.app']
 else:
     ALLOWED_HOSTS = ['127.0.0.1']
 
-# SECURITY (HTTPS / COOKIES / HSTS)
+#SECURITY (HTTPS / COOKIES / HSTS)
 if DEBUG:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
@@ -260,7 +255,7 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
 
-AWS_S3_REGION_NAME = "us-east-2"
+AWS_S3_REGION_NAME = "us-east-1"
 AWS_S3_ADDRESSING_STYLE = "path"
 AWS_QUERYSTRING_AUTH = False
 AWS_DEFAULT_ACL = None
