@@ -20,9 +20,9 @@ DEBUG = os.getenv("MY_DEBUG", "False") == "True"
 # HOSTS
 
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1']
-else:
     ALLOWED_HOSTS = ['mifqiq-production.up.railway.app']
+else:
+    ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY (HTTPS / COOKIES / HSTS)
 if DEBUG:
