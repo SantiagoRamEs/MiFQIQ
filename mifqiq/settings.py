@@ -12,11 +12,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 SECRET_KEY = config('MY_SECRET_KEY')
-DEBUG = os.getenv("MY_DEBUG", "False") == "True"
+DEBUG = os.getenv("MY_DEBUG") == "True"
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS.append('mifqiq-production.up.railway.app')
+ALLOWED_HOSTS = ['mifqiq-production.up.railway.app']
 
 #SECURITY (HTTPS / COOKIES / HSTS)
 if DEBUG:
