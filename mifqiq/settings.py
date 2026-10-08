@@ -72,9 +72,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # storage
-    'storages',
-
     # app
     'professors_fqiq',
     #PWA
@@ -219,7 +216,7 @@ else:
 
 STORAGES = {
     "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": STATICFILES_BACKEND,

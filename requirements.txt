@@ -1,9 +1,7 @@
-boto3==1.42.54
 dj-database-url==3.1.1
 Django==5.2.7
 django-allauth==65.13.0
 django-pwa==2.0.1
-django-storages==1.14.6
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.29.0

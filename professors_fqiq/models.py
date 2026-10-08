@@ -27,7 +27,6 @@ class Course(models.Model):
     
 # Tabla de profesores
 class Professor(models.Model):
-    #photos-supabase
     def professor_upload_path(instance, filename):
         name, ext = os.path.splitext(filename)
         safe_name = slugify(name)
