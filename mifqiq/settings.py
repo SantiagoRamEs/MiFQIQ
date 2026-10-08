@@ -117,8 +117,8 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_LOGIN_CANCELLED_URL = "account_3rdparty_login_cancelled"
 
 LOGIN_REDIRECT_URL = '/professors/'
-LOGIN_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
 
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*']
