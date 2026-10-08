@@ -169,7 +169,7 @@ WSGI_APPLICATION = 'mifqiq.wsgi.application'
 # DATABASE
 
 
-database_url = os.getenv("DATABASE_URL")
+database_url = os.getenv("DATABASE_PUBLIC_URL")
 if database_url:
     DATABASES = {"default": dj_database_url.parse(database_url)}
 elif DEBUG:
