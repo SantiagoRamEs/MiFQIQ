@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn mifqiq.wsgi:application
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn mifqiq.wsgi:application --access-logfile - --error-logfile -

@@ -274,6 +274,9 @@ LOGGING = {
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },
+        "allauth": {"handlers": ["console"], "level": "DEBUG"},
+        "django.request": {"handlers": ["console"], "level": "WARNING"},
+        "django.security": {"handlers": ["console"], "level": "WARNING"},
     },
 }
 
