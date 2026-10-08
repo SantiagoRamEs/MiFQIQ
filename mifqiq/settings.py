@@ -100,15 +100,13 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*']
 
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {},
+        "AUTH_PARAMS":  {"hd": "unmsm.edu.pe", "prompt": "select_account"},
     }
 }
-
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_ADAPTER = 'professors_fqiq.adapters.RestrictDomainSocialAccountAdapter'
@@ -120,8 +118,6 @@ LOGIN_REDIRECT_URL = '/professors/'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*']
 
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True

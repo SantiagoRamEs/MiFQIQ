@@ -2,9 +2,19 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.core.exceptions import ImmediateHttpResponse
 from django.shortcuts import redirect
 from django.contrib import messages
-
+import logging
 
 class RestrictDomainSocialAccountAdapter(DefaultSocialAccountAdapter):
+
+    
+
+    def on_authentication_error(self, request, provider, error=None, exception=None, extra_context=None):
+        logging.getLogger("allauth").error(
+            "Auth error provider=%s error=%s exception=%r", provider, error, exception
+        )
+        return super().on_authentication_error(
+            request, provider, error=error, exception=exception, extra_context=extra_context
+        )
 
     def pre_social_login(self, request, sociallogin):
         allowed_domain = "unmsm.edu.pe"
@@ -34,3 +44,4 @@ class RestrictDomainSocialAccountAdapter(DefaultSocialAccountAdapter):
             raise ImmediateHttpResponse(redirect("login"))
 
         return super().pre_social_login(request, sociallogin)
+    
