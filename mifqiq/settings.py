@@ -195,17 +195,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # INTERNATIONALIZATION
-
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Lima'
-
 USE_I18N = True
 USE_TZ = True
 
 
-# STATIC FILES
-
+#STATICFILES
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
@@ -223,7 +219,7 @@ else:
     STATICFILES_BACKEND = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
-# STORAGES (DJANGO 5+)
+#STORAGES (DJANGO 5+)
 
 STORAGES = {
     "default": {
@@ -234,15 +230,11 @@ STORAGES = {
     },
 }
 
-# mejora en dev
+#mejora en dev
 WHITENOISE_USE_FINDERS = DEBUG
-
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-# LOGGING
-
+#LOGGING
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -286,17 +278,14 @@ LOGGING = {
 }
 
 
-# UPLOAD LIMITS
-
+#UPLOAD LIMITS
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 
-# DEFAULT PK
-
+#DEFAULT PK
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 #API
 REST_FRAMEWORK = {
@@ -314,9 +303,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
 }
 
-
-# EMAIL CONFIGURATION
-
+#EMAIL CONFIGURATION
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
