@@ -23,7 +23,7 @@ class RestrictDomainSocialAccountAdapter(DefaultSocialAccountAdapter):
                 request,
                 "No se pudo obtener el correo desde Google."
             )
-            raise ImmediateHttpResponse(redirect("home"))
+            raise ImmediateHttpResponse(redirect("login"))
 
         if not email.endswith(f"@{allowed_domain}"):
             messages.error(
@@ -31,6 +31,6 @@ class RestrictDomainSocialAccountAdapter(DefaultSocialAccountAdapter):
                 f"Debes iniciar sesión con un correo institucional "
                 f"(usuario@{allowed_domain})"
             )
-            raise ImmediateHttpResponse(redirect("home"))
+            raise ImmediateHttpResponse(redirect("login"))
 
         return super().pre_social_login(request, sociallogin)
