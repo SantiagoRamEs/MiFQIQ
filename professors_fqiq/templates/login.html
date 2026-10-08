@@ -36,13 +36,22 @@
             </form>
             {% else %}
             <h2>Iniciar sesión</h2>
+
             {% if google_login_enabled %}
-            <a class="link-login" href="{% provider_login_url 'google' %}">
-                <div class="google-btn">
-                    <img class="img-google" src="{% static 'img/icono_google.png' %}">
-                    <p class="text-login">Iniciar sesión con Google</p>
-                </div>
-            </a>
+            <form method="post" action="{% provider_login_url 'google' %}" id="google-form">
+                {% csrf_token %}
+                <button type="submit" class="link-login">
+                    <div class="google-btn">
+                        <img class="img-google" src="{% static 'img/icono_google.png' %}">
+                        <p class="text-login">Iniciar sesión con Google</p>
+                    </div>
+                </button>
+            </form>
+            <div id="overlay" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,.9);
+                align-items:center; justify-content:center; z-index:9999; font-size:1.2rem;">
+                Iniciando sesión…
+            </div>
+
             {% else %}
             <p class="nota">El inicio de sesión con Google no está configurado en este entorno.</p>
             {% endif %}
@@ -57,7 +66,11 @@
 
     </div>
 
-
+    <script>
+        document.getElementById("google-form").addEventListener("submit", function () {
+            document.getElementById("overlay").style.display = "flex";
+        });
+    </script>
 
     <div class="information">
         <h3>¿Qué puedes hacer en <strong>MI FQIQ</strong>?</h3>
