@@ -7,6 +7,7 @@ from pathlib import Path
 from decouple import config
 from dotenv import load_dotenv
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
@@ -169,9 +170,20 @@ WSGI_APPLICATION = 'mifqiq.wsgi.application'
 # DATABASE
 
 
-DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    DATABASES = {"default": dj_database_url.parse(database_url)}
+elif DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
+else:
+    raise ImproperlyConfigured(
+        "DATABASE_URL must be configured for the production database."
+    )
 
 # PASSWORD VALIDATION
 
