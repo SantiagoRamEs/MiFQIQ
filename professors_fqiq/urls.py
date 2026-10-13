@@ -21,7 +21,8 @@ router.register(r"Grade", views.GradeViewSet)
 
 
 urlpatterns =[
-    path('', views.login_view, name = 'login'),
+    path('', views.home_view, name='home'),
+    path('login/', views.login_view, name='login'),
     path('crear-cuenta/', views.register_view, name='register'),
     path(
         'recuperar-contrasena/',

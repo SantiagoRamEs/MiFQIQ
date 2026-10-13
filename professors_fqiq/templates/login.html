@@ -5,10 +5,11 @@
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
+{% block title %}Iniciar sesión | Mi FQIQ{% endblock %}
+
 {% block content %}
 <div class="auth-page">
     <section class="auth-card">
-        <img class="auth-image" src="{% static 'img/home-fqiq.jpg' %}" alt="Facultad de Química e Ingeniería Química">
         <div class="auth-panel">
             <p class="title-login">¡Bienvenido a Mi FQIQ!</p>
             <h2>Iniciar sesión</h2>
@@ -33,24 +34,7 @@
             <p class="auth-switch">¿Aún no tienes cuenta? <a href="{% url 'register' %}">Crear cuenta</a></p>
             <p class="auth-switch"><a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a></p>
             <p class="nota">El registro está disponible para correos institucionales @unmsm.edu.pe.</p>
-        </div>
-    </section>
-
-    <section class="information">
-        <h3>¿Qué puedes hacer en <strong>MI FQIQ</strong>?</h3>
-        <div class="beneficios">
-            <section class="card">
-                <p class="title">Conocer a tus docentes</p>
-                <p class="description">Consulta calificaciones y comentarios realizados por otros estudiantes sobre sus experiencias académicas con los docentes.</p>
-            </section>
-            <section class="card">
-                <p class="title">Calificar a tus docentes</p>
-                <p class="description">Evalúa a tus profesores y comparte comentarios que respalden tu puntuación de manera responsable.</p>
-            </section>
-            <section class="card">
-                <p class="title">Tienes acceso exclusivo</p>
-                <p class="description">La plataforma está disponible únicamente para estudiantes con correo institucional.</p>
-            </section>
+            <p class="auth-switch"><a href="{% url 'home' %}">Volver al inicio</a></p>
         </div>
     </section>
 </div>

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi FQIQ | Comunidad estudiantil de Química e Ingeniería Química{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <section class="home-hero">
+        <div class="hero-copy">
+            <p class="hero-eyebrow">Comunidad estudiantil UNMSM</p>
+            <h2>Bienvenido a <span>Mi FQIQ</span></h2>
+            <p class="hero-description">
+                Conoce las experiencias de otros estudiantes, consulta información de tus docentes y comparte tu opinión
+                para construir una comunidad académica más informada.
+            </p>
+            <div class="hero-actions">
+                <a class="home-button home-button-primary" href="{% url 'login' %}">Iniciar sesión</a>
+                <a class="home-button home-button-secondary" href="{% url 'register' %}">Crear cuenta</a>
+            </div>
+            <p class="hero-note">Acceso para estudiantes con correo institucional @unmsm.edu.pe.</p>
+        </div>
+        <img class="hero-image" src="{% static 'img/home-fqiq.jpg' %}" alt="Facultad de Química e Ingeniería Química">
+    </section>
+
+    <section class="home-information" aria-labelledby="home-information-title">
+        <h2 id="home-information-title">¿Qué puedes hacer en <strong>Mi FQIQ</strong>?</h2>
+        <div class="home-benefits">
+            <article class="home-card">
+                <h3>Conocer a tus docentes</h3>
+                <p>Consulta calificaciones y comentarios de otros estudiantes sobre sus experiencias académicas.</p>
+            </article>
+            <article class="home-card">
+                <h3>Calificar a tus docentes</h3>
+                <p>Evalúa a tus profesores y comparte comentarios que respalden tu puntuación de manera responsable.</p>
+            </article>
+            <article class="home-card">
+                <h3>Una comunidad exclusiva</h3>
+                <p>La plataforma está disponible para estudiantes con correo institucional de la UNMSM.</p>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

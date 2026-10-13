@@ -15,6 +15,23 @@ class AuthenticationViewsTests(TestCase):
     def setUp(self):
         self.User = get_user_model()
 
+    def test_home_page_is_separate_from_login_form(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "index.html")
+        self.assertContains(response, 'href="/login/"')
+        self.assertContains(response, 'css/index.css')
+        self.assertNotContains(response, 'name="password"')
+
+    def test_login_page_has_its_own_template_and_stylesheet(self):
+        response = self.client.get("/login/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "login.html")
+        self.assertContains(response, 'css/login.css')
+        self.assertContains(response, 'name="password"')
+
     def test_login_uses_username_and_password(self):
         self.User.objects.create_user(
             username="estudiante",
@@ -23,7 +40,7 @@ class AuthenticationViewsTests(TestCase):
         )
 
         response = self.client.post(
-            "/",
+            "/login/",
             {"username": "estudiante", "password": "Strong-password-482!"},
         )
 
@@ -71,7 +88,7 @@ class AuthenticationViewsTests(TestCase):
             },
         )
 
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, "/login/")
         user = self.User.objects.get(username="alumno123")
         self.assertEqual(user.email, "alumno123@unmsm.edu.pe")
         self.assertEqual(user.first_name, "Ana")

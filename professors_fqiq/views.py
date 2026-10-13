@@ -125,6 +125,10 @@ def login_view(request):
     )
 
 
+def home_view(request):
+    return render(request, "index.html")
+
+
 def register_view(request):
     challenge = request.session.get(REGISTRATION_CHALLENGE_KEY)
     step = "email"
