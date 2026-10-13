@@ -6,7 +6,6 @@ import logging
 
 class RestrictDomainSocialAccountAdapter(DefaultSocialAccountAdapter):
 
-    
 
     def on_authentication_error(self, request, provider, error=None, exception=None, extra_context=None):
         logging.getLogger("allauth").error(

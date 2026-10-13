@@ -1,90 +1,57 @@
-{% extends 'base.html' %} {% load static %} {% load socialaccount %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
 {% block content %}
-
-{% if messages %}
-{% for message in messages %}
-<div class="alert-warning">{{ message }}</div>
-{% endfor %}
-{% endif %}
-
-
-<!-- inicio de sesion cancelado -->
-{% if request.GET.cancelled %}
-<p class="error" style="color:red;">
-    Debe iniciar sesión con un correo institucional (@unmsm.edu.pe).
-</p>
-{% endif %}
-
-<div class="content-all">
-    <div class="body-content">
-        <img class="img-fqiq" src="{% static 'img/home-fqiq.jpg' %}" alt="Facultad de Química e Ingeniería Química">
-
-        <div class="login-content">
-
+<div class="auth-page">
+    <section class="auth-card">
+        <img class="auth-image" src="{% static 'img/home-fqiq.jpg' %}" alt="Facultad de Química e Ingeniería Química">
+        <div class="auth-panel">
             <p class="title-login">¡Bienvenido a Mi FQIQ!</p>
-
-            {% if user.is_authenticated %}
-            <p class="nota">Hola, {{ user.first_name|truncatewords:1 }} ya has iniciado sesión.
-            </p>
-            <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn-logout">Cerrar sesión</button>
-            </form>
-            {% else %}
             <h2>Iniciar sesión</h2>
 
-            {% if google_login_enabled %}
-            <form method="post" action="{% provider_login_url 'google' %}" id="google-form">
+            {% if messages %}
+            <div class="auth-messages" aria-live="polite">
+                {% for message in messages %}
+                <p class="auth-message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form class="auth-form" method="post">
                 {% csrf_token %}
-                <button type="submit" class="link-login">
-                    <div class="google-btn">
-                        <img class="img-google" src="{% static 'img/icono_google.png' %}">
-                        <p class="text-login">Iniciar sesión con Google</p>
-                    </div>
-                </button>
+                <input type="hidden" name="next" value="{{ next }}">
+                <label for="id_username">Nombre de usuario</label>
+                <input id="id_username" name="username" type="text" autocomplete="username" required>
+                <label for="id_password">Contraseña</label>
+                <input id="id_password" name="password" type="password" autocomplete="current-password" required>
+                <button class="auth-button" type="submit">Ingresar</button>
             </form>
-
-            {% else %}
-            <p class="nota">El inicio de sesión con Google no está configurado en este entorno.</p>
-            {% endif %}
-            <p class="nota">Inicia sesión con tu correo institucional (ejemplo:
-                user@unmsm.edu.pe)
-            </p>
-            {% endif %}
-
-
+            <p class="auth-switch">¿Aún no tienes cuenta? <a href="{% url 'register' %}">Crear cuenta</a></p>
+            <p class="auth-switch"><a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a></p>
+            <p class="nota">El registro está disponible para correos institucionales @unmsm.edu.pe.</p>
         </div>
+    </section>
 
-    </div>
-
-
-
-    <div class="information">
+    <section class="information">
         <h3>¿Qué puedes hacer en <strong>MI FQIQ</strong>?</h3>
         <div class="beneficios">
             <section class="card">
                 <p class="title">Conocer a tus docentes</p>
-                <p class="description">
-                    Consulta calificaciones y comentarios realizados por otros estudiantes sobre sus experiencias
-                    académicas con los docentes. </p>
+                <p class="description">Consulta calificaciones y comentarios realizados por otros estudiantes sobre sus experiencias académicas con los docentes.</p>
             </section>
             <section class="card">
                 <p class="title">Calificar a tus docentes</p>
-                <p class="description">
-                    Evalúa a tus profesores y comparte comentarios que respalden tu puntuación de manera responsable.
-                </p>
+                <p class="description">Evalúa a tus profesores y comparte comentarios que respalden tu puntuación de manera responsable.</p>
             </section>
             <section class="card">
                 <p class="title">Tienes acceso exclusivo</p>
-                <p class="description">
-                    La plataforma está disponible únicamente para estudiantes con correo institucional.
-                </p>
+                <p class="description">La plataforma está disponible únicamente para estudiantes con correo institucional.</p>
             </section>
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}

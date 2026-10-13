@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Professor, Grade, Course, ProfessorCourse
+from .models import Professor, Grade, Course, ProfessorCourse, StudentProfile
 
 class ProfessorCourseInline(admin.TabularInline):
     model = ProfessorCourse
@@ -30,3 +30,4 @@ class CourseAdmin(admin.ModelAdmin):
 admin.site.register(Professor, ProfessorAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Grade, GradeAdmin)
+admin.site.register(StudentProfile)

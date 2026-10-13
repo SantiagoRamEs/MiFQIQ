@@ -47,7 +47,7 @@ SECURE_BROWSER_XSS_FILTER = True
 
 SECURE_CONTENT_SECURITY_POLICY = {
     'default-src': ("'self'",),
-    'script-src': ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "*.google.com"),
+    'script-src': ("'self'", "'unsafe-inline'"),
     'style-src': ("'self'", "'unsafe-inline'", "fonts.googleapis.com"),
     'img-src': ("'self'", "data:", "https:"),
     'font-src': ("'self'", "fonts.gstatic.com"),
@@ -66,13 +66,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # allauth
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-
     # app
     'professors_fqiq',
     #PWA
@@ -87,40 +80,13 @@ INSTALLED_APPS = [
 
 
 
-SITE_ID = 3
-
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-
-# ALLAUTH
-
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*']
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS":  {"hd": "unmsm.edu.pe", "prompt": "select_account"},
-    }
-}
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SOCIALACCOUNT_AUTO_SIGNUP = True
-
-SOCIALACCOUNT_ADAPTER = 'professors_fqiq.adapters.RestrictDomainSocialAccountAdapter'
-
-SOCIALACCOUNT_LOGIN_ON_GET = True
-SOCIALACCOUNT_LOGIN_CANCELLED_URL = "account_3rdparty_login_cancelled"
 
 LOGIN_REDIRECT_URL = '/professors/'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
-
-
-SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 #MIDDLEWARE
 MIDDLEWARE = [
@@ -131,7 +97,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -165,7 +130,7 @@ WSGI_APPLICATION = 'mifqiq.wsgi.application'
 # DATABASE
 
 
-database_url = os.getenv("DATABASE_URL")
+database_url = os.getenv("DATABASE_PUBLIC_URL")
 if database_url:
     DATABASES = {"default": dj_database_url.parse(database_url, conn_max_age=600)}
 elif DEBUG:
@@ -307,9 +272,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = 'ramirezsantiago2503@gmail.com'
-
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='ramirezsantiago2503@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 

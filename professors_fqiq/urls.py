@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from . import views
 
 from rest_framework import routers
@@ -21,7 +22,37 @@ router.register(r"Grade", views.GradeViewSet)
 
 urlpatterns =[
     path('', views.login_view, name = 'login'),
-    path('accounts/', include('allauth.urls')),
+    path('crear-cuenta/', views.register_view, name='register'),
+    path(
+        'recuperar-contrasena/',
+        auth_views.PasswordResetView.as_view(
+            template_name='password_reset_form.html',
+            email_template_name='password_reset_email.html',
+            subject_template_name='password_reset_subject.txt',
+        ),
+        name='password_reset',
+    ),
+    path(
+        'recuperar-contrasena/enviado/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='password_reset_done.html',
+        ),
+        name='password_reset_done',
+    ),
+    path(
+        'restablecer-contrasena/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='password_reset_confirm.html',
+        ),
+        name='password_reset_confirm',
+    ),
+    path(
+        'restablecer-contrasena/completo/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='password_reset_complete.html',
+        ),
+        name='password_reset_complete',
+    ),
     path('logout/', views.custom_logout, name='logout'),
 
     path('professors/', views.view_professors, name = 'professors'),
@@ -48,4 +79,3 @@ urlpatterns =[
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
 ]
-
