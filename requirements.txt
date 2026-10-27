@@ -6,3 +6,4 @@ drf_spectacular==0.29.0
 Pillow==13.0.0
 python-decouple==3.8
 python-dotenv==1.2.4
+django-pwa == 2.0.1
