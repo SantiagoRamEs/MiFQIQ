@@ -34,7 +34,12 @@
                 <li><a href="/">Inicio</a></li>
                 <li><a href="/professors/">Profesores</a></li>
                 <li><a href="/mis-calificaciones/">Mis calificaciones</a></li>
-                <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+                <li>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="nav-logout-button" type="submit">Cerrar sesión</button>
+                    </form>
+                </li>
                 {% else %}
                 <li><a href="/">Inicio</a></li>
                 {% endif %}

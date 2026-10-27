@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Completa tu perfil | Mi FQIQ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <section class="home-information">
+        <h2>Completa tu <strong>perfil</strong></h2>
+        <p>Selecciona tu carrera para continuar.</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label for="career">Carrera</label>
+            <select name="career" id="career" required>
+                <option value="" disabled selected>Selecciona tu carrera</option>
+                {% for value, label in careers %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="home-button home-button-primary">Continuar</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

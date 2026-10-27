@@ -19,12 +19,18 @@ from django.urls import path, include
 from professors_fqiq import urls
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 
 urlpatterns = [
     path('admin-mifqiq/', admin.site.urls),
     path('', include(urls)),
     path('',include('pwa.urls')),
+
+
+    path("accounts/login/", RedirectView.as_view(url="/", query_string=False)),
+    path("accounts/signup/", RedirectView.as_view(url="/", query_string=False)),
+    path("accounts/", include("allauth.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

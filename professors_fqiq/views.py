@@ -1,41 +1,26 @@
-import logging
-import secrets
-import smtplib
-import time
-
-from django.contrib import messages
-from django.contrib.auth import (
-    authenticate,
-    get_user_model,
-    login,
-    logout,
-)
+from django.contrib.auth import get_user_model, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import check_password, make_password
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.http import url_has_allowed_host_and_scheme
-from .forms import (
-    GradeForm,
-    InstitutionalEmailForm,
-    ProfessorSuggestionForm,
-    RegistrationDetailsForm,
-)
+from django.views.decorators.http import require_POST
+from .forms import GradeForm, ProfessorSuggestionForm
 from .models import Professor, Grade, ProfessorCourse, Course, StudentProfile
 from django.db.models import Avg, Count
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
-
-REGISTRATION_CHALLENGE_KEY = "registration_challenge"
-VERIFICATION_CODE_TTL = 600
-VERIFICATION_MAX_ATTEMPTS = 5
-VERIFICATION_RESEND_DELAY = 60
 
 
-# Create your views here.
+# Create your views here.}
+@login_required
+def completar_perfil(request):
+    if hasattr(request.user, "student_profile"):
+        return redirect("home")
+    if request.method == "POST":
+        StudentProfile.objects.create(user=request.user, career=request.POST["career"])
+        return redirect("professors")
+    return render(request, "completar_perfil.html",
+                  {"careers": StudentProfile.CAREER_CHOICES})
 @login_required
 def my_grades(request):
 
@@ -53,11 +38,6 @@ def my_grades(request):
         'grades': grades,
     })
 
-
-@login_required
-def custom_logout(request):
-    logout(request)
-    return redirect('/')
 
 @login_required
 def view_professors(request):
@@ -100,259 +80,17 @@ def view_professors(request):
         'professors': professors,
     })
 
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("professors")
-
-    if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        password = request.POST.get("password", "")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            next_url = request.POST.get("next", "")
-            if next_url and url_has_allowed_host_and_scheme(
-                next_url, allowed_hosts={request.get_host()}
-            ):
-                return redirect(next_url)
-            return redirect(settings.LOGIN_REDIRECT_URL)
-        messages.error(request, "Nombre de usuario o contraseña incorrectos.")
-
-    return render(
-        request,
-        "login.html",
-        {"next": request.POST.get("next", request.GET.get("next", ""))},
-    )
-
-
 def home_view(request):
     return render(request, "index.html")
 
 
-def register_view(request):
-    challenge = request.session.get(REGISTRATION_CHALLENGE_KEY)
-    step = "email"
-    email_form = InstitutionalEmailForm()
-    details_form = None
+@require_POST
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect("home")
 
-    if request.method == "POST":
-        action = request.POST.get("action")
 
-        if action == "send_code":
-            email_form = InstitutionalEmailForm(request.POST)
-            if email_form.is_valid():
-                email = email_form.cleaned_data["email"]
-                sent_at = challenge.get("sent_at", 0) if challenge else 0
-                wait = VERIFICATION_RESEND_DELAY - (time.time() - sent_at)
-                if wait > 0:
-                    messages.error(
-                        request,
-                        f"Espera {int(wait) + 1} segundos antes de solicitar otro código.",
-                    )
-                    step = "email"
-                else:
-                    code = f"{secrets.randbelow(100000):05d}"
-                    new_challenge = {
-                        "email": email,
-                        "code_hash": make_password(code),
-                        "expires_at": time.time() + VERIFICATION_CODE_TTL,
-                        "sent_at": time.time(),
-                        "attempts": 0,
-                        "verified": False,
-                    }
-                    try:
-                        sent_count = send_mail(
-                            "Código de verificación de Mi FQIQ",
-                            (
-                                f"Tu código de verificación es: {code}\n\n"
-                                "Este código vence en 10 minutos. "
-                                "Si no solicitaste crear una cuenta, ignora este mensaje."
-                            ),
-                            settings.DEFAULT_FROM_EMAIL,
-                            [email],
-                            fail_silently=False,
-                        )
-                    except (OSError, smtplib.SMTPException):
-                        logger.exception("No se pudo enviar el código de registro.")
-                        messages.error(
-                            request,
-                            "No se pudo enviar el correo. Inténtalo nuevamente más tarde.",
-                        )
-                    else:
-                        if sent_count != 1:
-                            logger.error(
-                                "El backend de correo no confirmó el envío del código."
-                            )
-                            messages.error(
-                                request,
-                                "No se pudo confirmar el envío del correo. Inténtalo nuevamente.",
-                            )
-                        else:
-                            request.session[REGISTRATION_CHALLENGE_KEY] = new_challenge
-                            request.session.modified = True
-                            challenge = new_challenge
-                            step = "verify"
-                            messages.success(
-                                request, "Enviamos un código de 5 dígitos a tu correo."
-                            )
-            else:
-                step = "email"
-
-        elif action == "change_email":
-            request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-            challenge = None
-            step = "email"
-
-        elif action == "verify_code":
-            step = "verify"
-            challenge = request.session.get(REGISTRATION_CHALLENGE_KEY)
-            if not challenge or challenge.get("verified"):
-                request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                messages.error(request, "Solicita un nuevo código para continuar.")
-                step = "email"
-            elif time.time() > challenge["expires_at"]:
-                request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                messages.error(request, "El código venció. Solicita uno nuevo.")
-                step = "email"
-            elif challenge["attempts"] >= VERIFICATION_MAX_ATTEMPTS:
-                request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                messages.error(
-                    request,
-                    "Se agotaron los intentos. Solicita un nuevo código.",
-                )
-                step = "email"
-            else:
-                code = request.POST.get("code", "").strip()
-                challenge["attempts"] += 1
-                if len(code) == 5 and code.isdigit() and check_password(
-                    code, challenge["code_hash"]
-                ):
-                    challenge["verified"] = True
-                    challenge["verified_at"] = time.time()
-                    request.session[REGISTRATION_CHALLENGE_KEY] = challenge
-                    step = "details"
-                    messages.success(request, "Correo verificado. Completa tus datos.")
-                else:
-                    if challenge["attempts"] >= VERIFICATION_MAX_ATTEMPTS:
-                        request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                        messages.error(
-                            request,
-                            "Código incorrecto. Se agotaron los intentos; solicita otro.",
-                        )
-                        step = "email"
-                    else:
-                        request.session[REGISTRATION_CHALLENGE_KEY] = challenge
-                        messages.error(request, "El código ingresado no es válido.")
-
-        elif action == "create_account":
-            challenge = request.session.get(REGISTRATION_CHALLENGE_KEY)
-            if (
-                not challenge
-                or not challenge.get("verified")
-                or time.time() > challenge.get("expires_at", 0)
-            ):
-                request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                messages.error(
-                    request, "Verifica nuevamente tu correo antes de crear la cuenta."
-                )
-                step = "email"
-            else:
-                email = challenge["email"]
-                username = email.split("@", 1)[0]
-                user_for_validation = User(
-                    username=username,
-                    email=email,
-                    first_name=request.POST.get("first_name", "").strip(),
-                    last_name=request.POST.get("last_name", "").strip(),
-                )
-                details_form = RegistrationDetailsForm(
-                    request.POST, user=user_for_validation
-                )
-                if details_form.is_valid():
-                    try:
-                        with transaction.atomic():
-                            user = User.objects.create_user(
-                                username=username,
-                                email=email,
-                                first_name=details_form.cleaned_data["first_name"],
-                                last_name=details_form.cleaned_data["last_name"],
-                                password=details_form.cleaned_data["password1"],
-                            )
-                            StudentProfile.objects.create(
-                                user=user,
-                                career=details_form.cleaned_data["career"],
-                            )
-                    except IntegrityError:
-                        request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                        messages.error(
-                            request,
-                            "Ya existe una cuenta con este correo o nombre de usuario.",
-                        )
-                        step = "email"
-                    else:
-                        request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-                        messages.success(
-                            request, "Tu cuenta fue creada. Ya puedes iniciar sesión."
-                        )
-                        return redirect("login")
-                else:
-                    step = "details"
-
-        else:
-            messages.error(request, "La solicitud no es válida. Inténtalo nuevamente.")
-
-    if (
-        request.method == "GET"
-        and step == "email"
-        and challenge
-        and challenge.get("verified")
-    ):
-        step = "details"
-    elif (
-        request.method == "GET"
-        and step == "email"
-        and challenge
-        and not challenge.get("verified")
-    ):
-        if time.time() <= challenge.get("expires_at", 0):
-            step = "verify"
-        else:
-            request.session.pop(REGISTRATION_CHALLENGE_KEY, None)
-            challenge = None
-
-    if step in {"verify", "details"}:
-        if challenge:
-            email_form = InstitutionalEmailForm(initial={"email": challenge["email"]})
-    if step == "details" and details_form is None:
-        challenge_email = challenge["email"] if challenge else ""
-        details_form = RegistrationDetailsForm(
-            user=User(
-                username=challenge_email.split("@", 1)[0],
-                email=challenge_email,
-            )
-        )
-
-    return render(
-        request,
-        "register.html",
-        {
-            "step": step,
-            "email_form": email_form,
-            "details_form": details_form,
-            "verified_email": challenge["email"] if challenge and challenge.get("verified") else "",
-            "resend_wait": (
-                max(
-                    0,
-                    int(
-                        VERIFICATION_RESEND_DELAY
-                        - (time.time() - challenge.get("sent_at", 0))
-                    ),
-                )
-                if challenge and not challenge.get("verified")
-                else 0
-            ),
-        },
-    )
 
 def form_valid(self, form):
     form.instance.user = self.request.user

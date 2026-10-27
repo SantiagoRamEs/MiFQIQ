@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Mi FQIQ | Comunidad estudiantil de Química e Ingeniería Química{% endblock %}
+{% block title %}Mi FQIQ | Comunidad estudiantil{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
@@ -9,6 +9,15 @@
 
 {% block content %}
 <div class="home-page">
+
+    {% if messages %}
+    <div class="home-messages" role="alert">
+        {% for message in messages %}
+        <p class="home-message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <section class="home-hero">
         <div class="hero-copy">
             <p class="hero-eyebrow">Comunidad estudiantil UNMSM</p>
@@ -18,8 +27,14 @@
                 para construir una comunidad académica más informada.
             </p>
             <div class="hero-actions">
-                <a class="home-button home-button-primary" href="{% url 'login' %}">Iniciar sesión</a>
-                <a class="home-button home-button-secondary" href="{% url 'register' %}">Crear cuenta</a>
+                {% if user.is_authenticated %}
+                <a class="home-button home-button-primary" href="{% url 'professors' %}">Explorar profesores</a>
+                {% else %}
+                <a class="home-button home-button-primary" href="{% url 'google_login' %}">
+                    <img src="{% static 'img/icono_google.png' %}" alt="" aria-hidden="true">
+                    Iniciar sesión con Google
+                </a>
+                {% endif %}
             </div>
             <p class="hero-note">Acceso para estudiantes con correo institucional @unmsm.edu.pe.</p>
         </div>
