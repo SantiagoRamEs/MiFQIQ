@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "storages",
     "professors_fqiq",
     "pwa",
     "drf_spectacular",
@@ -147,7 +148,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "mifqiq.wsgi.application"
 
 # DATABASE
-database_url = os.getenv("DATABASE_PUBLIC_URL")
+database_url = os.getenv("DATABASE_URL")
 if DEBUG:
     DATABASES = {
         "default": {
@@ -185,25 +186,48 @@ USE_TZ = True
 # STATIC AND MEDIA FILES
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+import os
+
 if DEBUG:
     STATICFILES_BACKEND = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    DEFAULT_FILE_BACKEND = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 else:
     STATICFILES_BACKEND = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    DEFAULT_FILE_BACKEND = "storages.backends.s3.S3Storage"
+
+    AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
+    AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+    AWS_STORAGE_BUCKET_NAME = os.environ["AWS_STORAGE_BUCKET_NAME"]
+    AWS_S3_ENDPOINT_URL = os.environ["AWS_S3_ENDPOINT_URL"]
+    AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", "auto")
+
+    AWS_S3_ADDRESSING_STYLE = "virtual"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
+    AWS_QUERYSTRING_EXPIRE = 3600
+    AWS_S3_FILE_OVERWRITE = False
 
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": DEFAULT_FILE_BACKEND,
     },
     "staticfiles": {
         "BACKEND": STATICFILES_BACKEND,
     },
 }
+
+
+
+
+
+
 
 WHITENOISE_USE_FINDERS = DEBUG
 
