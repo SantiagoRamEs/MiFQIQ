@@ -147,7 +147,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "mifqiq.wsgi.application"
 
 # DATABASE
-database_url = os.getenv("DATABASE_URL") or os.getenv("DATABASE_PUBLIC_URL")
+database_url = os.getenv("DATABASE_PUBLIC_URL")
 if DEBUG:
     DATABASES = {
         "default": {
