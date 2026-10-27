@@ -8,15 +8,35 @@ from django.db.models import Avg, Q
 
 from .validators import validate_image_size, validate_image_format, validate_image_dimensions
 
-RATING_FIELDS = [
-    "puntuality", "class_environment", "empathy", "class_evaluation",
-    "exam_difficulty", "silabo", "grading_consistency", "teaching_material",
-]
 
+
+import io
+
+from django.core.files.base import ContentFile
+from PIL import Image, ImageOps
+
+
+def to_webp(uploaded, max_size=800, quality=80):
+    uploaded.seek(0)
+    img = Image.open(uploaded)
+    img = ImageOps.exif_transpose(img)
+    has_alpha = img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info)
+    img = img.convert("RGBA" if has_alpha else "RGB")
+    img.thumbnail((max_size, max_size), Image.LANCZOS)
+    buffer = io.BytesIO()
+    img.save(buffer, format="WEBP", quality=quality, method=6)
+    return ContentFile(buffer.getvalue())
 
 def professor_upload_path(instance, filename):
     ext = os.path.splitext(filename)[1].lower()
     return f"professor_photos/{uuid.uuid4().hex}{ext}"
+
+
+
+RATING_FIELDS = [
+    "puntuality", "class_environment", "empathy", "class_evaluation",
+    "exam_difficulty", "silabo", "grading_consistency", "teaching_material",
+]
 
 
 def rating_field():
@@ -91,10 +111,36 @@ class Professor(models.Model):
     def __str__(self):
         return self.name
 
+    
+    def save(self, *args, **kwargs):
+        old_name = None
+        if self.pk:
+            old_name = (
+                Professor.objects.filter(pk=self.pk)
+                .values_list("photo", flat=True)
+                .first()
+            )
+
+        if self.photo and not self.photo._committed:
+            self.photo.save("photo.webp", to_webp(self.photo.file), save=False)
+
+        super().save(*args, **kwargs)
+
+        if old_name and old_name != self.photo.name:
+            self.photo.storage.delete(old_name)
+
+    def delete(self, *args, **kwargs):
+        photo = self.photo
+        super().delete(*args, **kwargs)
+        if photo:
+            photo.storage.delete(photo.name)
+    
+    
     def average_ratings(self):
         return Grade.objects.filter(professorcourse__professor=self).aggregate(
             **{f"avg_{f}": Avg(f) for f in RATING_FIELDS}
         )
+    
 
 
 class ProfessorCourse(models.Model):

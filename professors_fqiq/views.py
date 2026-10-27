@@ -199,7 +199,7 @@ def profile_professor(request, pk):
 
         course_stats.append(data)
 
-    # COMENTARIOS
+    #COMENTARIOS
     grades_with_comments = grades.exclude(comment="")
 
     return render(request, "profile_professor.html", {
