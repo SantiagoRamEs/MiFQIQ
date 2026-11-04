@@ -4,7 +4,7 @@ import uuid
 from django.conf import settings
 from django.core.validators import MaxLengthValidator, MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Avg, Q
+from django.db.models import Avg, Exists, OuterRef, Q
 
 from .validators import validate_image_size, validate_image_format, validate_image_dimensions
 
@@ -49,7 +49,7 @@ class StudentProfile(models.Model):
     CAREER_CHOICES = [
         ("quimica", "Química"),
         ("ingenieria_quimica", "Ingeniería Química"),
-        ("ingenieria_agua_tratamiento", "Ingeniería del Agua y Tecnologías de Tratamiento"),
+        ("ingenieria_agua_tratamiento", "Ingeniería del Agua y TT"),
         ("ingenieria_agroindustrial", "Ingeniería Agroindustrial"),
     ]
 
@@ -63,6 +63,15 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.get_career_display()}"
+
+
+class CourseQuerySet(models.QuerySet):
+    def for_career(self, career):
+        # Courses without assignments stay visible to every career until assigned.
+        unassigned_courses = CourseCareer.objects.filter(course_id=OuterRef("pk"))
+        return self.filter(
+            Q(careers__career=career) | ~Exists(unassigned_courses)
+        ).distinct()
 
 
 class Course(models.Model):
@@ -80,8 +89,27 @@ class Course(models.Model):
             models.UniqueConstraint(fields=["name_course", "ciclo"], name="unique_course_name_ciclo"),
         ]
 
+    objects = CourseQuerySet.as_manager()
+
     def __str__(self):
         return self.name_course
+
+
+class CourseCareer(models.Model):
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="careers"
+    )
+    career = models.CharField(max_length=40, choices=StudentProfile.CAREER_CHOICES)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["course", "career"], name="unique_course_career"
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.course} - {self.get_career_display()}"
 
 
 class ProfessorQuerySet(models.QuerySet):

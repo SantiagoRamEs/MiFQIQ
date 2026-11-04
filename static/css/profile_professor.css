@@ -129,10 +129,25 @@ h3 {
 
 /* HEADER */
 .comment-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 11pt;
   font-weight: 600;
   color: #f1f1f1;
   margin-bottom: 6px;
+}
+
+.career-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid rgba(241, 241, 241, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d0d5dc;
+  font-size: 8.5pt;
+  font-weight: 400;
 }
 
 /* BODY */

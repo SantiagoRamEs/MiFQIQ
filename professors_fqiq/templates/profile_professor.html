@@ -23,8 +23,8 @@
                 <h2 class="name">{{ professor.name }}</h2>
 
                 <p class="courses">
-                    {% for pc in professor.coursestaught.all %}
-                    {{ pc.course.name_course }}{% if not forloop.last %}, {% endif %}
+                    {% for c in courses %}
+                    {{ c.pc.course.name_course }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </p>
             </div>
@@ -154,8 +154,15 @@
                 <!-- HEADER -->
                 <div class="comment-header">
                     <span class="comment-user">
+                        {% if grade.user %}
                         {{ grade.user.first_name|first_word }} {{ grade.user.last_name|first_word }}
+                        {% else %}
+                        Usuario eliminado
+                        {% endif %}
                     </span>
+                    {% if grade.user and grade.user.student_profile %}
+                    <span class="career-badge">{{ grade.user.student_profile.get_career_display }}</span>
+                    {% endif %}
                 </div>
 
                 <!-- BODY -->

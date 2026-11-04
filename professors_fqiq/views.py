@@ -1,14 +1,25 @@
 from django.contrib.auth import get_user_model, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Avg, Count, Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from .forms import GradeForm, ProfessorSuggestionForm
 from .models import Professor, Grade, ProfessorCourse, Course, StudentProfile
-from django.db.models import Avg, Count
 
 User = get_user_model()
+
+
+def _visible_courses_for(user):
+    try:
+        profile = user.student_profile
+    except StudentProfile.DoesNotExist:
+        return None
+    if user.is_staff or user.is_superuser:
+        return Course.objects.all()
+    return Course.objects.for_career(profile.career)
 
 
 # Create your views here.}
@@ -41,6 +52,9 @@ def my_grades(request):
 
 @login_required
 def view_professors(request):
+    visible_courses = _visible_courses_for(request.user)
+    if visible_courses is None:
+        return redirect("completar_perfil")
 
     rating_fields = [
         'puntuality',
@@ -55,6 +69,14 @@ def view_professors(request):
 
     professors_qs = Professor.objects.annotate(
         **{f'avg_{f}': Avg(f'coursestaught__grades__{f}') for f in rating_fields}
+    ).prefetch_related(
+        Prefetch(
+            "coursestaught",
+            queryset=ProfessorCourse.objects.filter(
+                course__in=visible_courses
+            ).select_related("course"),
+            to_attr="visible_courses",
+        )
     ).order_by('?')
 
     professors = []
@@ -99,8 +121,15 @@ def form_valid(self, form):
 #CREAR UNA CALIFICACIÓN          
 @login_required
 def create_grade(request, pc_id):
+    visible_courses = _visible_courses_for(request.user)
+    if visible_courses is None:
+        return redirect("completar_perfil")
 
-    professor_course = get_object_or_404(ProfessorCourse, id=pc_id)
+    professor_course = get_object_or_404(
+        ProfessorCourse.objects.select_related("professor", "course"), id=pc_id
+    )
+    if not visible_courses.filter(pk=professor_course.course_id).exists():
+        raise PermissionDenied
     professor = professor_course.professor
 
     # evitar que el usuario califique el mismo curso dos veces
@@ -137,6 +166,9 @@ def create_grade(request, pc_id):
 #PERFIL DE PROFESOR
 @login_required
 def profile_professor(request, pk):
+    visible_courses = _visible_courses_for(request.user)
+    if visible_courses is None:
+        return redirect("completar_perfil")
 
     professor = get_object_or_404(Professor, pk=pk)
 
@@ -151,12 +183,14 @@ def profile_professor(request, pk):
         'teaching_material',
     ]
 
-    grades = Grade.objects.filter(professorcourse__professor=professor)
+    grades = Grade.objects.filter(
+        professorcourse__professor=professor
+    ).select_related("user__student_profile", "professorcourse__course")
 
     # CURSOS OPTIMIZADOS
     courses_qs = ProfessorCourse.objects.filter(
-        professor=professor
-        ).select_related('course').annotate(
+        professor=professor, course__in=visible_courses
+    ).select_related('course').annotate(
         total_grades=Count('grades'),
 
         avg_puntuality=Avg('grades__puntuality'),

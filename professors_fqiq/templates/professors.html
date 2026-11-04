@@ -41,7 +41,7 @@
         </a>
 
         <p class="cursos">
-            {% for pc in item.professor.coursestaught.all %}
+            {% for pc in item.professor.visible_courses %}
             {{ pc.course.name_course }}{% if not forloop.last %}, {% endif %}
             {% empty %}
             Sin cursos registrados

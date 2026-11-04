@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import Professor, Grade, Course, ProfessorCourse, StudentProfile
+
+from .models import (
+    Course,
+    CourseCareer,
+    Grade,
+    Professor,
+    ProfessorCourse,
+    StudentProfile,
+)
 
 class ProfessorCourseInline(admin.TabularInline):
     model = ProfessorCourse
@@ -22,9 +30,16 @@ class GradeAdmin(admin.ModelAdmin):
     readonly_fields = ("created",)
 
 
+class CourseCareerInline(admin.TabularInline):
+    model = CourseCareer
+    extra = 1
+
+
 class CourseAdmin(admin.ModelAdmin):
     search_fields = ["name_course"]
     readonly_fields = ("created",)
+    inlines = [CourseCareerInline]
+    list_filter = ("careers__career",)
 
 
 admin.site.register(Professor, ProfessorAdmin)
