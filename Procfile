@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn mifqiq.wsgi:application  --worker-class gthread --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile - 
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn mifqiq.wsgi:application --worker-class gthread --workers 1 --threads 6 --timeout 120 --max-requests 1000 --max-requests-jitter 100 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile -
